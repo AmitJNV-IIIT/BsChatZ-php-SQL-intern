@@ -1,0 +1,36 @@
+<?php
+
+try {
+    $conn = new mysqli("localhost", "root", "", "whatsapp");
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $stmt = $conn->prepare("SELECT posts.*, COUNT(likes.like_id) AS like_count, COUNT(comments.comment_id) AS comment_count " .
+                           "FROM posts " .
+                           "LEFT JOIN likes ON posts.post_id = likes.post_id " .
+                           "LEFT JOIN comments ON posts.post_id = comments.post_id " .
+                           "GROUP BY posts.post_id");
+
+    $stmt->execute();
+    $result = $stmt->fetchAll();
+
+    foreach ($result as $row) {
+        $postId = $row['post_id'];
+        $userId = $row['user_id'];
+        $content = $row['content'];
+        $timestamp = $row['timestamp'];
+        $likeCount = $row['like_count'];
+        $commentCount = $row['comment_count'];
+
+        // Display the post details
+        echo "Post ID: " . $postId . "<br>";
+        echo "User ID: " . $userId . "<br>";
+        echo "Content: " . $content . "<br>";
+        echo "Timestamp: " . $timestamp . "<br>";
+        echo "Like Count: " . $likeCount . "<br>";
+        echo "Comment Count: " . $commentCount . "<br><br>";
+    }
+} catch (PDOException $e) {
+    echo "Error: " . $e->getMessage();
+}
+$conn = null;
+?>
